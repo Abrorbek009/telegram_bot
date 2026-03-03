@@ -20,7 +20,7 @@ function registerHandlers(bot) {
     return sendWelcomeAndMenu(bot, msg, getLang(chatId));
   });
 
-  // ✅ callback: stars paket + til tanlash
+  // ✅ callback: stars paket + premium + til tanlash
   bot.on("callback_query", async (q) => {
     const chatId = q.message?.chat?.id;
     const data = q.data;
@@ -35,6 +35,7 @@ function registerHandlers(bot) {
       await bot.answerCallbackQuery(q.id);
 
       const prices = {
+        15: 3999,
         100: 26000,
         150: 36999,
         250: 59999,
@@ -72,6 +73,58 @@ function registerHandlers(bot) {
     }
 
     // =========================
+    // 🛍 PREMIUM TANLANGANDA
+    // =========================
+    if (data.startsWith("prem:")) {
+      await bot.answerCallbackQuery(q.id);
+
+      const key = data.split(":")[1];
+
+      const premiums = {
+        "1m_link": {
+          title: "✅ 1 oylik premium (akauntga ulanib)",
+          price: "45 000 so‘m yoki 45 olmos",
+        },
+        "3m_nolink": {
+          title: "✅ 3 oylik premium (akauntga ulanmasdan)",
+          price: "198 000 so‘m",
+        },
+        "6m_nolink": {
+          title: "✅ 6 oylik premium (akauntga ulanmasdan)",
+          price: "260 000 so‘m",
+        },
+        "1y_nolink": {
+          title: "✅ 1 yillik premium (akauntga ulanmasdan)",
+          price: "379 999 so‘m 👻 (Asl narxida 😍)",
+        },
+        "1y_link": {
+          title: "✅ 1 yillik premium (akauntga ulanib)",
+          price: "299 000 so‘m",
+        },
+      };
+
+      const p = premiums[key];
+      if (!p) return;
+
+      const text =
+        `🛍 <b>Premium buyurtma</b>\n\n` +
+        `${p.title}\n` +
+        `💵 Narxi: <b>${p.price}</b>\n\n` +
+        `📩 <b>Murojaat uchun:</b>\n` +
+        `@muxammadjonovw\n\n` +
+        `📝 <i>Eslatma: qaysi tarifni tanlaganingizni adminga yozing.</i>`;
+
+      return bot.sendMessage(chatId, text, {
+        parse_mode: "HTML",
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "📩 Adminga yozish", url: "https://t.me/muxammadjonovw" }],
+          ],
+        },
+      });
+    }
+
+    // =========================
     // 🌐 LANGUAGE TANLASH
     // =========================
     if (data.startsWith("lang:")) {
@@ -81,7 +134,6 @@ function registerHandlers(bot) {
       setLang(chatId, lang);
       await bot.answerCallbackQuery(q.id);
 
-      // “menu ready” deb edit qilamiz
       try {
         await bot.editMessageText("✅ OK", {
           chat_id: chatId,
@@ -89,7 +141,6 @@ function registerHandlers(bot) {
         });
       } catch (e) {}
 
-      // keyin welcome+menu
       const fakeMsg = { chat: { id: chatId }, from: q.from };
       return sendWelcomeAndMenu(bot, fakeMsg, lang);
     }
@@ -105,7 +156,6 @@ function registerHandlers(bot) {
     if (!text) return;
     if (text.startsWith("/")) return;
 
-    // til hali tanlanmagan bo‘lsa — til menyusi qaytadi
     if (!hasLang(chatId)) {
       return sendLanguageMenu(bot, chatId);
     }
@@ -115,11 +165,13 @@ function registerHandlers(bot) {
 
     // ⭐ Stars bo‘limi: matn + inline tugmalar
     if (text === tx.buttons.buyStars) {
-      return bot.sendMessage(chatId, tx.replies.buyStars, {
+      const header = "⭐ <b>Yulduz sotib olish bo‘limi</b>\n\nPaketni tanlang 👇";
+      return bot.sendMessage(chatId, header, {
         parse_mode: "HTML",
         reply_markup: {
           inline_keyboard: [
             [
+              { text: "⭐ 15", callback_data: "stars:15" },
               { text: "⭐ 100", callback_data: "stars:100" },
               { text: "⭐ 150", callback_data: "stars:150" },
               { text: "⭐ 250", callback_data: "stars:250" },
@@ -147,14 +199,29 @@ function registerHandlers(bot) {
       });
     }
 
-    // ✅ PREMIUM: HTML bilan yuboriladi
+    // 🛍 Premium bo‘limi: tugmalar bilan
     if (text === tx.buttons.buyPremium) {
-      return bot.sendMessage(chatId, tx.replies.buyPremium, { parse_mode: "HTML" });
+      const textPremium =
+        "🛍 <b>Premium tariflar</b>\n\n" +
+        "Qaysi tarif kerakligini tanlang 👇\n\n" +
+        "📩 <b>Murojaat:</b> @muxammadjonovw\n" +
+        "📝 <i>Eslatma: nima olishingizni adminga yozing.</i>";
+
+      return bot.sendMessage(chatId, textPremium, {
+        parse_mode: "HTML",
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "✅ 1 oy (akauntga ulanib)", callback_data: "prem:1m_link" }],
+            [{ text: "✅ 3 oy (ulanmasdan)", callback_data: "prem:3m_nolink" }],
+            [{ text: "✅ 6 oy (ulanmasdan)", callback_data: "prem:6m_nolink" }],
+            [{ text: "✅ 1 yil (ulanmasdan)", callback_data: "prem:1y_nolink" }],
+            [{ text: "✅ 1 yil (akauntga ulanib)", callback_data: "prem:1y_link" }],
+          ],
+        },
+      });
     }
 
-    if (text === tx.buttons.faq) {
-      return bot.sendMessage(chatId, tx.replies.faq);
-    }
+    if (text === tx.buttons.faq) return bot.sendMessage(chatId, tx.replies.faq);
 
     if (text === tx.buttons.profile) {
       return bot.sendMessage(
@@ -163,13 +230,8 @@ function registerHandlers(bot) {
       );
     }
 
-    if (text === tx.buttons.calc) {
-      return bot.sendMessage(chatId, tx.replies.calc);
-    }
-
-    if (text === tx.buttons.top) {
-      return bot.sendMessage(chatId, tx.replies.top);
-    }
+    if (text === tx.buttons.calc) return bot.sendMessage(chatId, tx.replies.calc);
+    if (text === tx.buttons.top) return bot.sendMessage(chatId, tx.replies.top);
 
     return bot.sendMessage(chatId, tx.replies.pickFromMenu);
   });
@@ -177,6 +239,11 @@ function registerHandlers(bot) {
   // polling error
   bot.on("polling_error", (e) => {
     console.error("polling_error:", e?.response?.body || e?.message || e);
+
+    if (e?.response?.body?.error_code === 409) {
+      console.error("409 conflict – boshqa joyda bot ishlayapti. Lokalni to'xtating yoki Render'ni to'xtating.");
+      process.exit(1);
+    }
   });
 }
 
