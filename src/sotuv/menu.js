@@ -1,10 +1,13 @@
-// src/menu.js
+// src/sotuv/menu.js
+const { read: readStats } = require("./stats");
+
 function getTexts(lang = "uz") {
   const t = {
     uz: {
       welcomeTitle: "Xush kelibsiz",
       bought: "✨ Bot yordamida sotib olingan",
       stars: "yulduzlar",
+      autoLockedLabel: "(avto qotilgan)",
       buttons: {
         buyStars: "⭐ Yulduzlarni sotib oling",
         buyPremium: "🛍 Premium sotib oling",
@@ -27,6 +30,7 @@ function getTexts(lang = "uz") {
       welcomeTitle: "Добро пожаловать",
       bought: "✨ С помощью бота куплено",
       stars: "звёзд",
+      autoLockedLabel: "(авто-заблокировано)",
       buttons: {
         buyStars: "⭐ Купить звёзды",
         buyPremium: "🛍 Купить Premium",
@@ -48,6 +52,7 @@ function getTexts(lang = "uz") {
       welcomeTitle: "Welcome",
       bought: "✨ Bought using the bot",
       stars: "stars",
+      autoLockedLabel: "(auto-locked)",
       buttons: {
         buyStars: "⭐ Buy stars",
         buyPremium: "🛍 Buy Premium",
@@ -74,14 +79,27 @@ async function sendWelcomeAndMenu(bot, msg, lang) {
   const chatId = msg.chat.id;
   const tx = getTexts(lang);
 
+  const stats = readStats();
+
+  // formatting numbers with spaces as thousand separators
+  const fmt = (n) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+
   const username = msg.from?.username
     ? `@${msg.from.username}`
     : msg.from?.first_name || "do‘stim";
 
+  const totalLine = `<b>${fmt(stats.botBought)} ${tx.stars}</b>`;
+  const autoLockedLine = stats.autoLocked
+    ? `<b>${fmt(stats.autoLocked)}</b> ${tx.stars} ${tx.autoLockedLabel}`
+    : "";
+
+  const approx = stats.approxUSD ? ` (~${stats.approxUSD}$)` : "";
+
   const text =
     `⭐ <b>${tx.welcomeTitle}, ${username}</b>\n\n` +
     `${tx.bought}\n` +
-    `<b>1 231 075 ${tx.stars}</b> (~20 979,46$)`;
+    `${totalLine}${approx}` +
+    (autoLockedLine ? `\n${autoLockedLine}` : "");
 
   return bot.sendMessage(chatId, text, {
     parse_mode: "HTML",
