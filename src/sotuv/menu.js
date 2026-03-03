@@ -1,5 +1,4 @@
 // src/sotuv/menu.js
-const { read: readStats } = require("./stats");
 
 function getTexts(lang = "uz") {
   const t = {
@@ -17,8 +16,27 @@ function getTexts(lang = "uz") {
         top: "🏆 Eng yaxshi xaridorlar",
       },
       replies: {
-        buyStars: "⭐ Yulduz sotib olish bo‘limi (tez orada).",
-        buyPremium: "🛍 Premium obuna (tez orada).",
+        buyStars: "⭐ Yulduz sotib olish bo‘limi",
+
+        // ✅ BU YERGA PREMIUM MATNI QO'YILDI
+        buyPremium:
+          "🛍 <b>Premium tariflar</b>\n\n" +
+          "✅ <b>1 oylik premium</b>\n" +
+          "Akauntga ulanib\n" +
+          "💵 45 000 so‘m yoki \n\n" +
+          "✅ <b>3 oylik premium</b>\n" +
+          "198 000 (akauntga ulanmasdan)\n\n" +
+          "✅ <b>6 oylik premium</b>\n" +
+          "260 000 (akauntga ulanmasdan)\n\n" +
+          "✅ <b>1 yillik premium</b> (akauntga ulanmasdan)\n" +
+          "Asl narxida 😍\n" +
+          "💵 379 999 so‘m 👻\n\n" +
+          "✅ <b>1 yillik premium</b> (akauntga ulanib)\n" +
+          "💵 299 000 so‘m\n\n" +
+          "📩 <b>Murojaat uchun:</b>\n" +
+          "@muxammadjonovw\n\n" +
+          "📝 <i>Eslatma: nima olishingizni adminga yozing.</i>",
+
         faq:
           "📌 Tez-tez so'raladigan savollar:\n1️⃣ Bot qanday ishlaydi?\n2️⃣ To‘lovlar qanday qilinadi?\n(tez orada to‘ldiriladi)",
         calc: "🧮 Kalkulyator (tez orada).",
@@ -26,6 +44,7 @@ function getTexts(lang = "uz") {
         pickFromMenu: "❓ Iltimos, pastdagi menyudan tanlang.",
       },
     },
+
     ru: {
       welcomeTitle: "Добро пожаловать",
       bought: "✨ С помощью бота куплено",
@@ -48,6 +67,7 @@ function getTexts(lang = "uz") {
         pickFromMenu: "❓ Пожалуйста, выберите пункт из меню ниже.",
       },
     },
+
     en: {
       welcomeTitle: "Welcome",
       bought: "✨ Bought using the bot",
@@ -75,13 +95,32 @@ function getTexts(lang = "uz") {
   return t[lang] || t.uz;
 }
 
+const fs = require("fs");
+const path = require("path");
+
+function readStats() {
+  try {
+    const p = path.resolve(__dirname, "../../stats.json");
+    if (fs.existsSync(p)) {
+      const data = JSON.parse(fs.readFileSync(p, "utf8") || "{}");
+      return {
+        botBought: data.botBought || 0,
+        autoLocked: data.autoLocked || 0,
+        approxUSD: data.approxUSD || 0,
+      };
+    }
+  } catch (e) {}
+
+  return { botBought: 0, autoLocked: 0, approxUSD: 0 };
+}
+
 async function sendWelcomeAndMenu(bot, msg, lang) {
   const chatId = msg.chat.id;
   const tx = getTexts(lang);
 
+  // ⚠️ readStats() sendeda bor edi — o'sha joyida qoladi
   const stats = readStats();
 
-  // formatting numbers with spaces as thousand separators
   const fmt = (n) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 
   const username = msg.from?.username
