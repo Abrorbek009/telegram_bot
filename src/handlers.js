@@ -2,6 +2,8 @@
 const { hasLang, getLang, setLang, sendLanguageMenu } = require("./til/language");
 const { getTexts, sendWelcomeAndMenu } = require("./sotuv/menu");
 
+
+
 function registerHandlers(bot) {
   // ✅ /language yoki /lang — til tanlashni chiqaradi
   bot.onText(/^\/(lang|language)$/, async (msg) => {
@@ -86,11 +88,11 @@ function registerHandlers(bot) {
           price: "45 000 so‘m yoki 45 olmos",
         },
         "3m_nolink": {
-          title: "✅ 3 oylik premium (akauntga ulanmasdan)",
+          title: "✅ 3 oylik premium (akauntga ulanib)",
           price: "198 000 so‘m",
         },
         "6m_nolink": {
-          title: "✅ 6 oylik premium (akauntga ulanmasdan)",
+          title: "✅ 6 oylik premium (akauntga ulanib)",
           price: "260 000 so‘m",
         },
         "1y_nolink": {
@@ -221,7 +223,12 @@ function registerHandlers(bot) {
       });
     }
 
-    if (text === tx.buttons.faq) return bot.sendMessage(chatId, tx.replies.faq);
+    if (text === tx.buttons.faq) {
+      return bot.sendMessage(chatId, tx.replies.faq, {
+        parse_mode: "HTML",
+        disable_web_page_preview: true,
+      });
+    }
 
     if (text === tx.buttons.profile) {
       return bot.sendMessage(
