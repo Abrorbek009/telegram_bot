@@ -2,15 +2,27 @@
 {
   "name": "saveinstayutubetgbot",
   "version": "1.0.0",
-  "description": "Telegram downloader bot",
+  "description": "Telegram downloader bot for Instagram and YouTube",
   "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
+  "type": "commonjs",
+  "engine": {
+    "node": ">=16.0.0"
   },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "downloader",
+    "instagram",
+    "youtube"
+  ],
+  "author": "",
+  "license": "MIT",
   "dependencies": {
     "dotenv": "^16.5.0",
     "node-telegram-bot-api": "^0.61.0"
   }
-
-  
 }
