@@ -1,4 +1,6 @@
-// src/sotuv/menu.js
+const { ADMIN_USERNAME, PREMIUM_PLANS } = require("../config/catalog");
+const { readStats } = require("../services/stats-store");
+const { formatNumber } = require("../utils/format");
 
 function getTexts(lang = "uz") {
   const t = {
@@ -6,42 +8,42 @@ function getTexts(lang = "uz") {
       welcomeTitle: "Xush kelibsiz",
       bought: "✨ Bot yordamida sotib olingan",
       stars: "yulduzlar",
-      autoLockedLabel: "(avto qotilgan)",
       buttons: {
         buyStars: "⭐ Yulduzlarni sotib oling",
         buyPremium: "🛍 Premium sotib oling",
-        faq: "📌 Tez-tez so'raladigan savollar",
+        faq: "📌 Tez-tez so‘raladigan savollar",
         profile: "👤 Profil",
         calc: "🧮 Kalkulyator",
         top: "🏆 Eng yaxshi xaridorlar",
       },
       replies: {
-        buyStars: "⭐ Yulduz sotib olish bo‘limi",
+        faq: `
+📌 <b>Ko‘p so‘raladigan savollar:</b>
 
-        // ✅ BU YERGA PREMIUM MATNI QO'YILDI
-        buyPremium:
-          "🛍 <b>Premium tariflar</b>\n\n" +
-          "✅ <b>1 oylik premium</b>\n" +
-          "Akauntga ulanib\n" +
-          "💵 45 000 so‘m yoki \n\n" +
-          "✅ <b>3 oylik premium</b>\n" +
-          "198 000 (akauntga ulanmasdan)\n\n" +
-          "✅ <b>6 oylik premium</b>\n" +
-          "260 000 (akauntga ulanmasdan)\n\n" +
-          "✅ <b>1 yillik premium</b> (akauntga ulanmasdan)\n" +
-          "Asl narxida 😍\n" +
-          "💵 379 999 so‘m 👻\n\n" +
-          "✅ <b>1 yillik premium</b> (akauntga ulanib)\n" +
-          "💵 299 000 so‘m\n\n" +
-          "📩 <b>Murojaat uchun:</b>\n" +
-          "@muxammadjonovw\n\n" +
-          "📝 <i>Eslatma: nima olishingizni adminga yozing.</i>",
+❓ <b>Tovar qanday beriladi?</b>
+💬 Yulduzlar buyurtma paytida ko‘rsatgan akkauntingizga tushadi.
 
-        faq:
-          "📌 Tez-tez so'raladigan savollar:\n1️⃣ Bot qanday ishlaydi?\n2️⃣ To‘lovlar qanday qilinadi?\n(tez orada to‘ldiriladi)",
-        calc: "🧮 Kalkulyator (tez orada).",
+❓ <b>Premium qanday beriladi?</b>
+💬 Premium sovg‘a sifatida profilingizga yuboriladi va darhol ochiladi.
+
+❓ <b>Yulduzlar qanchada keladi?</b>
+💬 Odatda 15 soniya ichida yetib boradi.
+
+❓ <b>Faqat o‘zim uchun sotib olsam bo‘ladimi?</b>
+💬 Yo‘q, istalgan foydalanuvchiga yuborishingiz mumkin.
+
+❓ <b>Blok yoki refund bo‘ladimi?</b>
+💬 Yo‘q, biz Telegram rasmiy tizimidan foydalanamiz.
+        `,
+        calc: "🚀 Kerakli yulduz sonini yuboring. Masalan: <b>100</b>",
+        calcInvalid: "❌ Iltimos, faqat musbat son yuboring. Masalan: <b>100</b>",
         top: "🏆 Top xaridorlar (tez orada).",
-        pickFromMenu: "❓ Iltimos, pastdagi menyudan tanlang.",
+        pickFromMenu: "❓ Iltimos, menyudan tanlang.",
+        starsHeader: "⭐ <b>Yulduz sotib olish bo‘limi</b>\n\nPaketni tanlang 👇",
+        premiumHeader:
+          "🛍 <b>Premium tariflar</b>\n\nQaysi tarif kerakligini tanlang 👇\n\n" +
+          `📩 <b>Murojaat:</b> @${ADMIN_USERNAME}\n` +
+          "📝 <i>Eslatma: nima olishingizni adminga yozing.</i>",
       },
     },
 
@@ -49,45 +51,85 @@ function getTexts(lang = "uz") {
       welcomeTitle: "Добро пожаловать",
       bought: "✨ С помощью бота куплено",
       stars: "звёзд",
-      autoLockedLabel: "(авто-заблокировано)",
       buttons: {
-        buyStars: "⭐ Купить звёзды",
-        buyPremium: "🛍 Купить Premium",
+        buyStars: "⭐ Купить звезды",
+        buyPremium: "🛍 Премиум",
         faq: "📌 FAQ",
         profile: "👤 Профиль",
         calc: "🧮 Калькулятор",
-        top: "🏆 Топ покупателей",
+        top: "🏆 Топ",
       },
       replies: {
-        buyStars: "⭐ Раздел покупки звёзд (скоро).",
-        buyPremium: "🛍 Premium (скоро).",
-        faq: "📌 FAQ (скоро заполним).",
-        calc: "🧮 Калькулятор (скоро).",
-        top: "🏆 Топ покупателей (скоро).",
-        pickFromMenu: "❓ Пожалуйста, выберите пункт из меню ниже.",
+        faq: `
+📌 <b>Часто задаваемые вопросы:</b>
+
+❓ <b>Как происходит выдача товара?</b>
+💬 Звёзды приходят на указанный аккаунт.
+
+❓ <b>Как выдаётся премиум?</b>
+💬 Премиум приходит подарком.
+
+❓ <b>Как быстро доставка?</b>
+💬 Обычно до 15 секунд.
+
+❓ <b>Можно ли купить не себе?</b>
+💬 Да, можно отправить любому пользователю.
+
+❓ <b>Есть ли риск?</b>
+💬 Нет, используется официальная система Telegram.
+        `,
+        calc: "🚀 Отправьте нужное количество звёзд. Например: <b>100</b>",
+        calcInvalid: "❌ Пожалуйста, отправьте только положительное число. Например: <b>100</b>",
+        top: "🏆 Топ (скоро).",
+        pickFromMenu: "❓ Выберите из меню.",
+        starsHeader: "⭐ <b>Покупка звёзд</b>\n\nВыберите пакет 👇",
+        premiumHeader:
+          "🛍 <b>Тарифы Premium</b>\n\nВыберите нужный тариф 👇\n\n" +
+          `📩 <b>Для связи:</b> @${ADMIN_USERNAME}\n` +
+          "📝 <i>Напишите админу, что именно хотите купить.</i>",
       },
     },
 
     en: {
       welcomeTitle: "Welcome",
-      bought: "✨ Bought using the bot",
+      bought: "✨ Bought using bot",
       stars: "stars",
-      autoLockedLabel: "(auto-locked)",
       buttons: {
         buyStars: "⭐ Buy stars",
-        buyPremium: "🛍 Buy Premium",
+        buyPremium: "🛍 Premium",
         faq: "📌 FAQ",
         profile: "👤 Profile",
         calc: "🧮 Calculator",
-        top: "🏆 Top buyers",
+        top: "🏆 Top",
       },
       replies: {
-        buyStars: "⭐ Stars purchase section (coming soon).",
-        buyPremium: "🛍 Premium (coming soon).",
-        faq: "📌 FAQ (coming soon).",
-        calc: "🧮 Calculator (coming soon).",
-        top: "🏆 Top buyers (coming soon).",
-        pickFromMenu: "❓ Please choose an option from the menu below.",
+        faq: `
+📌 <b>Frequently Asked Questions:</b>
+
+❓ <b>How is the product delivered?</b>
+💬 Stars are sent to your account.
+
+❓ <b>How is premium delivered?</b>
+💬 Premium is sent as a gift.
+
+❓ <b>How fast is delivery?</b>
+💬 Usually within 15 seconds.
+
+❓ <b>Can I send to others?</b>
+💬 Yes, to any @username.
+
+❓ <b>Is it safe?</b>
+💬 Yes, official Telegram system is used.
+        `,
+        calc: "🚀 Send the required number of stars. Example: <b>100</b>",
+        calcInvalid: "❌ Please send only a positive number. Example: <b>100</b>",
+        top: "🏆 Top (soon).",
+        pickFromMenu: "❓ Choose from menu.",
+        starsHeader: "⭐ <b>Buy stars</b>\n\nChoose a package 👇",
+        premiumHeader:
+          "🛍 <b>Premium plans</b>\n\nChoose the plan you need 👇\n\n" +
+          `📩 <b>Contact:</b> @${ADMIN_USERNAME}\n` +
+          "📝 <i>Please message the admin with what you want to buy.</i>",
       },
     },
   };
@@ -95,50 +137,51 @@ function getTexts(lang = "uz") {
   return t[lang] || t.uz;
 }
 
-const fs = require("fs");
-const path = require("path");
-
-function readStats() {
-  try {
-    const p = path.resolve(__dirname, "../../stats.json");
-    if (fs.existsSync(p)) {
-      const data = JSON.parse(fs.readFileSync(p, "utf8") || "{}");
-      return {
-        botBought: data.botBought || 0,
-        autoLocked: data.autoLocked || 0,
-        approxUSD: data.approxUSD || 0,
-      };
-    }
-  } catch (e) {}
-
-  return { botBought: 0, autoLocked: 0, approxUSD: 0 };
+function getStarsKeyboard() {
+  return [
+    [
+      { text: "⭐ 15", callback_data: "stars:15" },
+      { text: "⭐ 100", callback_data: "stars:100" },
+      { text: "⭐ 150", callback_data: "stars:150" },
+      { text: "⭐ 250", callback_data: "stars:250" },
+      { text: "⭐ 350", callback_data: "stars:350" },
+    ],
+    [
+      { text: "⭐ 500", callback_data: "stars:500" },
+      { text: "⭐ 750", callback_data: "stars:750" },
+      { text: "⭐ 1000", callback_data: "stars:1000" },
+    ],
+    [
+      { text: "⭐ 1500", callback_data: "stars:1500" },
+      { text: "⭐ 2500", callback_data: "stars:2500" },
+    ],
+    [
+      { text: "⭐ 5000", callback_data: "stars:5000" },
+      { text: "⭐ 10000", callback_data: "stars:10000" },
+    ],
+    [
+      { text: "⭐ 50000", callback_data: "stars:50000" },
+      { text: "⭐ 100000", callback_data: "stars:100000" },
+    ],
+  ];
 }
 
 async function sendWelcomeAndMenu(bot, msg, lang) {
   const chatId = msg.chat.id;
   const tx = getTexts(lang);
-
-  // ⚠️ readStats() sendeda bor edi — o'sha joyida qoladi
   const stats = readStats();
-
-  const fmt = (n) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 
   const username = msg.from?.username
     ? `@${msg.from.username}`
-    : msg.from?.first_name || "do‘stim";
+    : msg.from?.first_name || "friend";
 
-  const totalLine = `<b>${fmt(stats.botBought)} ${tx.stars}</b>`;
-  const autoLockedLine = stats.autoLocked
-    ? `<b>${fmt(stats.autoLocked)}</b> ${tx.stars} ${tx.autoLockedLabel}`
-    : "";
-
+  const totalLine = `<b>${formatNumber(stats.botBought)} ${tx.stars}</b>`;
   const approx = stats.approxUSD ? ` (~${stats.approxUSD}$)` : "";
 
   const text =
     `⭐ <b>${tx.welcomeTitle}, ${username}</b>\n\n` +
     `${tx.bought}\n` +
-    `${totalLine}${approx}` +
-    (autoLockedLine ? `\n${autoLockedLine}` : "");
+    `${totalLine}${approx}`;
 
   return bot.sendMessage(chatId, text, {
     parse_mode: "HTML",
@@ -150,12 +193,41 @@ async function sendWelcomeAndMenu(bot, msg, lang) {
         [tx.buttons.calc, tx.buttons.top],
       ],
       resize_keyboard: true,
-      one_time_keyboard: false,
+    },
+  });
+}
+
+async function sendStarsMenu(bot, chatId, lang) {
+  const tx = getTexts(lang);
+
+  return bot.sendMessage(chatId, tx.replies.starsHeader, {
+    parse_mode: "HTML",
+    reply_markup: {
+      inline_keyboard: getStarsKeyboard(),
+    },
+  });
+}
+
+async function sendPremiumMenu(bot, chatId, lang) {
+  const tx = getTexts(lang);
+  const premiumButtons = Object.keys(PREMIUM_PLANS).map((key) => [
+    {
+      text: PREMIUM_PLANS[key].title[lang] || PREMIUM_PLANS[key].title.uz,
+      callback_data: `prem:${key}`,
+    },
+  ]);
+
+  return bot.sendMessage(chatId, tx.replies.premiumHeader, {
+    parse_mode: "HTML",
+    reply_markup: {
+      inline_keyboard: premiumButtons,
     },
   });
 }
 
 module.exports = {
   getTexts,
+  sendPremiumMenu,
+  sendStarsMenu,
   sendWelcomeAndMenu,
 };

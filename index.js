@@ -21,5 +21,4 @@ bot.getMe()
     process.exit(1);
   });
 
-// hamma logikani ulaymiz
 registerHandlers(bot);
