@@ -21,4 +21,5 @@ bot.getMe()
     process.exit(1);
   });
 
+
 registerHandlers(bot);
