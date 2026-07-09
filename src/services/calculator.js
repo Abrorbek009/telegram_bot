@@ -89,16 +89,16 @@ function buildCalculatorText(lang, starsAmount) {
 
   const labels = {
     uz: {
-      intro: "Yuqorida mavjud to‘lov usullari bo‘yicha narx ko‘rsatilgan.",
-      askAgain: "🚀 Yana hisoblash uchun kerakli qiymatni yuboring:",
+      intro: "Yuqorida mavjud to'lov usullari bo'yicha narx ko'rsatilgan.",
+      askAgain: "Yana hisoblash uchun kerakli qiymatni yuboring:",
     },
     ru: {
       intro: "Выше представлена стоимость в доступных методах оплаты с учетом комиссии.",
-      askAgain: "🚀 Введите требуемое значение для расчета:",
+      askAgain: "Введите требуемое значение для расчета:",
     },
     en: {
       intro: "The cost above is shown across available payment methods including commission.",
-      askAgain: "🚀 Enter the required amount for calculation:",
+      askAgain: "Enter the required amount for calculation:",
     },
   };
 
@@ -106,15 +106,15 @@ function buildCalculatorText(lang, starsAmount) {
 
   const methodLines = PAYMENT_METHODS.map((method) => {
     const value = localized.valueForMethod(method.multiplier);
-    return `<b>${method.name}:</b> ${formatNumber(value)} ${localized.currency}`;
+    return `${method.name}: ${formatNumber(value)} ${localized.currency}`;
   }).join("\n");
 
   return (
     `${methodLines}\n` +
-    `<b>TON | USDT TON</b>\n` +
+    `TON | USDT TON\n` +
     `├ ${localized.tonAmount} TON\n` +
     `└ ${localized.usdtTonAmount} USDT-TON\n\n` +
-    `<i>${tx.intro} ${formatNumber(starsAmount)} ${starWord(lang)}.</i>\n\n` +
+    `${tx.intro} ${formatNumber(starsAmount)} ${starWord(lang)}.\n\n` +
     `${tx.askAgain}`
   );
 }

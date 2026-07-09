@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { logger } = require("./logger");
 
 const statsPath = path.resolve(__dirname, "../../stats.json");
 
@@ -18,7 +19,7 @@ function readStats() {
       approxUSD: Number(parsed.approxUSD) || 0,
     };
   } catch (error) {
-    console.error("Statistika fayli o‘qilmadi:", error.message);
+    logger.error("Stats read failed", { error: error.message });
     return { botBought: 0, autoLocked: 0, approxUSD: 0 };
   }
 }

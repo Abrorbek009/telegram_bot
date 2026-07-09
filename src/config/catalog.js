@@ -20,63 +20,48 @@ const STAR_PRICES = {
 
 const PREMIUM_PLANS = {
   "1m_link": {
-    title: {
-      uz: "✅ 1 oy (akauntga ulanib)",
-      ru: "✅ 1 месяц (с привязкой к аккаунту)",
-      en: "✅ 1 month (linked to account)",
-    },
-    price: {
-      uz: "45 000 so‘m yoki 45 olmos",
-      ru: "45 000 сум или 45 алмазов",
-      en: "45,000 UZS or 45 diamonds",
+    amount: 45000,
+    durationDays: 30,
+    titles: {
+      uz: "1 oy (akauntga ulanib)",
+      ru: "1 месяц (с привязкой к аккаунту)",
+      en: "1 month (linked to account)",
     },
   },
   "3m_nolink": {
-    title: {
-      uz: "✅ 3 oy (ulanmasdan)",
-      ru: "✅ 3 месяца (без привязки)",
-      en: "✅ 3 months (without linking)",
-    },
-    price: {
-      uz: "198 000 so‘m",
-      ru: "198 000 сум",
-      en: "198,000 UZS",
+    amount: 198000,
+    durationDays: 90,
+    titles: {
+      uz: "3 oy (ulanmasdan)",
+      ru: "3 месяца (без привязки)",
+      en: "3 months (without linking)",
     },
   },
   "6m_nolink": {
-    title: {
-      uz: "✅ 6 oy (ulanmasdan)",
-      ru: "✅ 6 месяцев (без привязки)",
-      en: "✅ 6 months (without linking)",
-    },
-    price: {
-      uz: "260 000 so‘m",
-      ru: "260 000 сум",
-      en: "260,000 UZS",
+    amount: 260000,
+    durationDays: 180,
+    titles: {
+      uz: "6 oy (ulanmasdan)",
+      ru: "6 месяцев (без привязки)",
+      en: "6 months (without linking)",
     },
   },
   "1y_nolink": {
-    title: {
-      uz: "✅ 1 yil (ulanmasdan)",
-      ru: "✅ 1 год (без привязки)",
-      en: "✅ 1 year (without linking)",
-    },
-    price: {
-      uz: "379 999 so‘m 👻 (asl narxida 😍)",
-      ru: "379 999 сум 👻 (по обычной цене 😍)",
-      en: "379,999 UZS 👻 (regular price 😍)",
+    amount: 379999,
+    durationDays: 365,
+    titles: {
+      uz: "1 yil (ulanmasdan)",
+      ru: "1 год (без привязки)",
+      en: "1 year (without linking)",
     },
   },
   "1y_link": {
-    title: {
-      uz: "✅ 1 yil (akauntga ulanib)",
-      ru: "✅ 1 год (с привязкой к аккаунту)",
-      en: "✅ 1 year (linked to account)",
-    },
-    price: {
-      uz: "299 000 so‘m",
-      ru: "299 000 сум",
-      en: "299,000 UZS",
+    amount: 299000,
+    durationDays: 365,
+    titles: {
+      uz: "1 yil (akauntga ulanib)",
+      ru: "1 год (с привязкой к аккаунту)",
+      en: "1 year (linked to account)",
     },
   },
 };

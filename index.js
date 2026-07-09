@@ -1,25 +1,27 @@
-require("dotenv").config();
 const TelegramBot = require("node-telegram-bot-api");
+const { createApp } = require("./src/app");
+const { connectMongo } = require("./src/db/mongoose");
 const { registerHandlers } = require("./src/handlers");
+const { env, validateEnv } = require("./src/config/env");
+const { logger } = require("./src/services/logger");
 
-const token = process.env.BOT_TOKEN;
+async function bootstrap() {
+  validateEnv();
+  await connectMongo();
 
-if (!token) {
-  console.error("❌ BOT_TOKEN topilmadi. .env faylni tekshir!");
-  process.exit(1);
-}
+  const bot = new TelegramBot(env.botToken, { polling: true });
+  registerHandlers(bot);
 
-const bot = new TelegramBot(token, { polling: true });
-
-console.log("✅ Bot ishga tushdi...");
-
-bot.getMe()
-  .then((me) => console.log(`✅ Token OK. Bot: @${me.username}`))
-  .catch((err) => {
-    console.error("❌ Token xato yoki revoke qilingan!");
-    console.error(err?.response?.body || err?.message || err);
-    process.exit(1);
+  const app = createApp();
+  app.listen(env.port, () => {
+    logger.info("HTTP server started", { port: env.port });
   });
 
+  const me = await bot.getMe();
+  logger.info("Telegram bot started", { username: me.username });
+}
 
-registerHandlers(bot);
+bootstrap().catch((error) => {
+  logger.error("Application bootstrap failed", { error: error.message });
+  process.exit(1);
+});

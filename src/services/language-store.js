@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { logger } = require("./logger");
 
 const dataDir = path.resolve(__dirname, "../../data");
 const storePath = path.join(dataDir, "user-languages.json");
@@ -26,7 +27,7 @@ function loadStore() {
       memoryStore.set(String(chatId), lang);
     }
   } catch (error) {
-    console.error("Til saqlash fayli o‘qilmadi:", error.message);
+    logger.error("Language store read failed", { error: error.message });
   }
 }
 
@@ -37,7 +38,7 @@ function saveStore() {
     const payload = Object.fromEntries(memoryStore.entries());
     fs.writeFileSync(storePath, JSON.stringify(payload, null, 2), "utf8");
   } catch (error) {
-    console.error("Til saqlash fayliga yozilmadi:", error.message);
+    logger.error("Language store write failed", { error: error.message });
   }
 }
 

@@ -1,135 +1,160 @@
-const { ADMIN_USERNAME, PREMIUM_PLANS } = require("../config/catalog");
+const { PREMIUM_PLANS, STAR_PRICES, ADMIN_USERNAME } = require("../config/catalog");
 const { readStats } = require("../services/stats-store");
-const { formatNumber } = require("../utils/format");
+const { formatDate, formatNumber } = require("../utils/format");
 
 function getTexts(lang = "uz") {
   const t = {
     uz: {
       welcomeTitle: "Xush kelibsiz",
-      bought: "✨ Bot yordamida sotib olingan",
+      bought: "Bot orqali sotib olingan",
       stars: "yulduzlar",
       buttons: {
-        buyStars: "⭐ Yulduzlarni sotib oling",
-        buyPremium: "🛍 Premium sotib oling",
-        faq: "📌 Tez-tez so‘raladigan savollar",
-        profile: "👤 Profil",
-        calc: "🧮 Kalkulyator",
-        top: "🏆 Eng yaxshi xaridorlar",
+        buyStars: "⭐ Yulduzlar",
+        buyPremium: "Premium",
+        topUp: "Balansni to'ldirish",
+        transactions: "Tranzaksiyalar",
+        profile: "Profil",
+        promo: "Promo kod",
+        referral: "Referral",
+        calc: "Kalkulyator",
+        faq: "FAQ",
+        top: "Top",
       },
       replies: {
-        faq: `
-📌 <b>Ko‘p so‘raladigan savollar:</b>
-
-❓ <b>Tovar qanday beriladi?</b>
-💬 Yulduzlar buyurtma paytida ko‘rsatgan akkauntingizga tushadi.
-
-❓ <b>Premium qanday beriladi?</b>
-💬 Premium sovg‘a sifatida profilingizga yuboriladi va darhol ochiladi.
-
-❓ <b>Yulduzlar qanchada keladi?</b>
-💬 Odatda 15 soniya ichida yetib boradi.
-
-❓ <b>Faqat o‘zim uchun sotib olsam bo‘ladimi?</b>
-💬 Yo‘q, istalgan foydalanuvchiga yuborishingiz mumkin.
-
-❓ <b>Blok yoki refund bo‘ladimi?</b>
-💬 Yo‘q, biz Telegram rasmiy tizimidan foydalanamiz.
-        `,
-        calc: "🚀 Kerakli yulduz sonini yuboring. Masalan: <b>100</b>",
-        calcInvalid: "❌ Iltimos, faqat musbat son yuboring. Masalan: <b>100</b>",
-        top: "🏆 Top xaridorlar (tez orada).",
-        pickFromMenu: "❓ Iltimos, menyudan tanlang.",
-        starsHeader: "⭐ <b>Yulduz sotib olish bo‘limi</b>\n\nPaketni tanlang 👇",
-        premiumHeader:
-          "🛍 <b>Premium tariflar</b>\n\nQaysi tarif kerakligini tanlang 👇\n\n" +
-          `📩 <b>Murojaat:</b> @${ADMIN_USERNAME}\n` +
-          "📝 <i>Eslatma: nima olishingizni adminga yozing.</i>",
+        faq:
+          "<b>FAQ</b>\n\n" +
+          "Yulduzlar va Premium bo'yicha buyurtmalar bot orqali qabul qilinadi.\n" +
+          `Admin: @${ADMIN_USERNAME}`,
+        calc: "Kerakli yulduz sonini yuboring. Masalan: <b>100</b>",
+        calcInvalid: "Iltimos, musbat son yuboring. Masalan: <b>100</b>",
+        top: "Top bo'limi keyingi bosqichda to'ldiriladi.",
+        pickFromMenu: "Iltimos, menyudan tanlang.",
+        topupPrompt: "To'lov turini tanlang:",
+        amountPrompt: "Summani yuboring. Masalan: <b>50000</b>",
+        amountInvalid: "Iltimos, to'g'ri summa yuboring.",
+        promoPrompt: "Promo kodni yuboring:",
+        starsHeader: "<b>Yulduz sotib olish</b>\nWallet orqali paket tanlang:",
+        premiumHeader: "<b>Premium tariflar</b>\nWallet orqali tarif tanlang:",
+        historyEmpty: "Tranzaksiyalar hali yo'q.",
+        profilePremiumNone: "Yo'q",
+        profilePremiumPending: "Kutilmoqda",
+        profilePremiumRejected: "Rad etilgan",
+        profilePremiumActive: "Faol",
+        referralText:
+          "Do'stlarni taklif qiling va bonus oling.\n" +
+          "Sizning referral kodingiz: <b>{code}</b>\n" +
+          "Taklif qilinganlar: <b>{count}</b>",
+        insufficientBalance: "Wallet balansingiz yetarli emas.",
+        premiumPending: "Premium so'rovingiz adminga yuborildi.",
+        starsPurchased: "Buyurtma qabul qilindi. Admin tez orada siz bilan bog'lanadi.",
+        topupCreated:
+          "<b>{provider}</b> uchun to'lov yaratildi.\n" +
+          "Transaction ID: <b>{transactionId}</b>\n" +
+          "Summa: <b>{amount}</b>\n" +
+          "{paymentUrl}",
+        webhookWaiting: "To'lov tasdiqlangach wallet avtomatik to'ldiriladi.",
       },
     },
-
     ru: {
       welcomeTitle: "Добро пожаловать",
-      bought: "✨ С помощью бота куплено",
+      bought: "Куплено через бота",
       stars: "звёзд",
       buttons: {
-        buyStars: "⭐ Купить звезды",
-        buyPremium: "🛍 Премиум",
-        faq: "📌 FAQ",
-        profile: "👤 Профиль",
-        calc: "🧮 Калькулятор",
-        top: "🏆 Топ",
+        buyStars: "⭐ Звезды",
+        buyPremium: "Premium",
+        topUp: "Пополнить баланс",
+        transactions: "Транзакции",
+        profile: "Профиль",
+        promo: "Промокод",
+        referral: "Реферал",
+        calc: "Калькулятор",
+        faq: "FAQ",
+        top: "Топ",
       },
       replies: {
-        faq: `
-📌 <b>Часто задаваемые вопросы:</b>
-
-❓ <b>Как происходит выдача товара?</b>
-💬 Звёзды приходят на указанный аккаунт.
-
-❓ <b>Как выдаётся премиум?</b>
-💬 Премиум приходит подарком.
-
-❓ <b>Как быстро доставка?</b>
-💬 Обычно до 15 секунд.
-
-❓ <b>Можно ли купить не себе?</b>
-💬 Да, можно отправить любому пользователю.
-
-❓ <b>Есть ли риск?</b>
-💬 Нет, используется официальная система Telegram.
-        `,
-        calc: "🚀 Отправьте нужное количество звёзд. Например: <b>100</b>",
-        calcInvalid: "❌ Пожалуйста, отправьте только положительное число. Например: <b>100</b>",
-        top: "🏆 Топ (скоро).",
-        pickFromMenu: "❓ Выберите из меню.",
-        starsHeader: "⭐ <b>Покупка звёзд</b>\n\nВыберите пакет 👇",
-        premiumHeader:
-          "🛍 <b>Тарифы Premium</b>\n\nВыберите нужный тариф 👇\n\n" +
-          `📩 <b>Для связи:</b> @${ADMIN_USERNAME}\n` +
-          "📝 <i>Напишите админу, что именно хотите купить.</i>",
+        faq:
+          "<b>FAQ</b>\n\n" +
+          "Заказы на звезды и Premium принимаются через бота.\n" +
+          `Админ: @${ADMIN_USERNAME}`,
+        calc: "Отправьте нужное количество звёзд. Например: <b>100</b>",
+        calcInvalid: "Пожалуйста, отправьте положительное число. Например: <b>100</b>",
+        top: "Раздел топа будет заполнен позже.",
+        pickFromMenu: "Пожалуйста, выберите пункт меню.",
+        topupPrompt: "Выберите способ оплаты:",
+        amountPrompt: "Отправьте сумму. Например: <b>50000</b>",
+        amountInvalid: "Пожалуйста, отправьте корректную сумму.",
+        promoPrompt: "Отправьте промокод:",
+        starsHeader: "<b>Покупка звезд</b>\nВыберите пакет для оплаты из wallet:",
+        premiumHeader: "<b>Тарифы Premium</b>\nВыберите тариф для оплаты из wallet:",
+        historyEmpty: "Транзакций пока нет.",
+        profilePremiumNone: "Нет",
+        profilePremiumPending: "Ожидает одобрения",
+        profilePremiumRejected: "Отклонен",
+        profilePremiumActive: "Активен",
+        referralText:
+          "Приглашайте друзей и получайте бонус.\n" +
+          "Ваш referral код: <b>{code}</b>\n" +
+          "Приглашено: <b>{count}</b>",
+        insufficientBalance: "Недостаточно средств в wallet.",
+        premiumPending: "Запрос на Premium отправлен администратору.",
+        starsPurchased: "Заказ принят. Администратор свяжется с вами.",
+        topupCreated:
+          "<b>{provider}</b> платеж создан.\n" +
+          "Transaction ID: <b>{transactionId}</b>\n" +
+          "Сумма: <b>{amount}</b>\n" +
+          "{paymentUrl}",
+        webhookWaiting: "После подтверждения платежа wallet пополнится автоматически.",
       },
     },
-
     en: {
       welcomeTitle: "Welcome",
-      bought: "✨ Bought using bot",
+      bought: "Purchased via bot",
       stars: "stars",
       buttons: {
-        buyStars: "⭐ Buy stars",
-        buyPremium: "🛍 Premium",
-        faq: "📌 FAQ",
-        profile: "👤 Profile",
-        calc: "🧮 Calculator",
-        top: "🏆 Top",
+        buyStars: "⭐ Stars",
+        buyPremium: "Premium",
+        topUp: "Top up balance",
+        transactions: "Transactions",
+        profile: "Profile",
+        promo: "Promo code",
+        referral: "Referral",
+        calc: "Calculator",
+        faq: "FAQ",
+        top: "Top",
       },
       replies: {
-        faq: `
-📌 <b>Frequently Asked Questions:</b>
-
-❓ <b>How is the product delivered?</b>
-💬 Stars are sent to your account.
-
-❓ <b>How is premium delivered?</b>
-💬 Premium is sent as a gift.
-
-❓ <b>How fast is delivery?</b>
-💬 Usually within 15 seconds.
-
-❓ <b>Can I send to others?</b>
-💬 Yes, to any @username.
-
-❓ <b>Is it safe?</b>
-💬 Yes, official Telegram system is used.
-        `,
-        calc: "🚀 Send the required number of stars. Example: <b>100</b>",
-        calcInvalid: "❌ Please send only a positive number. Example: <b>100</b>",
-        top: "🏆 Top (soon).",
-        pickFromMenu: "❓ Choose from menu.",
-        starsHeader: "⭐ <b>Buy stars</b>\n\nChoose a package 👇",
-        premiumHeader:
-          "🛍 <b>Premium plans</b>\n\nChoose the plan you need 👇\n\n" +
-          `📩 <b>Contact:</b> @${ADMIN_USERNAME}\n` +
-          "📝 <i>Please message the admin with what you want to buy.</i>",
+        faq:
+          "<b>FAQ</b>\n\n" +
+          "Stars and Premium orders are handled through the bot.\n" +
+          `Admin: @${ADMIN_USERNAME}`,
+        calc: "Send the required number of stars. Example: <b>100</b>",
+        calcInvalid: "Please send a positive number. Example: <b>100</b>",
+        top: "Top section will be filled in later.",
+        pickFromMenu: "Please choose from the menu.",
+        topupPrompt: "Choose a payment method:",
+        amountPrompt: "Send the amount. Example: <b>50000</b>",
+        amountInvalid: "Please send a valid amount.",
+        promoPrompt: "Send your promo code:",
+        starsHeader: "<b>Buy stars</b>\nChoose a wallet purchase package:",
+        premiumHeader: "<b>Premium plans</b>\nChoose a wallet purchase plan:",
+        historyEmpty: "No transactions yet.",
+        profilePremiumNone: "None",
+        profilePremiumPending: "Pending approval",
+        profilePremiumRejected: "Rejected",
+        profilePremiumActive: "Active",
+        referralText:
+          "Invite friends and earn bonuses.\n" +
+          "Your referral code: <b>{code}</b>\n" +
+          "Invited users: <b>{count}</b>",
+        insufficientBalance: "Your wallet balance is not enough.",
+        premiumPending: "Your Premium request was sent to the admin.",
+        starsPurchased: "Your order was accepted. Admin will contact you soon.",
+        topupCreated:
+          "<b>{provider}</b> payment created.\n" +
+          "Transaction ID: <b>{transactionId}</b>\n" +
+          "Amount: <b>{amount}</b>\n" +
+          "{paymentUrl}",
+        webhookWaiting: "Wallet will be topped up automatically after payment confirmation.",
       },
     },
   };
@@ -137,32 +162,46 @@ function getTexts(lang = "uz") {
   return t[lang] || t.uz;
 }
 
-function getStarsKeyboard() {
+function applyTemplate(text, params) {
+  return Object.entries(params).reduce((result, [key, value]) => {
+    return result.replace(new RegExp(`\\{${key}\\}`, "g"), String(value));
+  }, text);
+}
+
+function getMainKeyboard(lang) {
+  const tx = getTexts(lang);
+  return {
+    keyboard: [
+      [tx.buttons.buyStars, tx.buttons.buyPremium],
+      [tx.buttons.topUp, tx.buttons.profile],
+      [tx.buttons.transactions, tx.buttons.promo],
+      [tx.buttons.referral, tx.buttons.calc],
+      [tx.buttons.faq, tx.buttons.top],
+    ],
+    resize_keyboard: true,
+  };
+}
+
+function getStarsInlineKeyboard() {
+  return Object.keys(STAR_PRICES).map((amount) => [
+    { text: `⭐ ${amount}`, callback_data: `walletbuy:stars:${amount}` },
+  ]);
+}
+
+function getPremiumInlineKeyboard(lang) {
+  return Object.entries(PREMIUM_PLANS).map(([planKey, plan]) => [
+    {
+      text: `${plan.titles[lang] || plan.titles.uz} - ${formatNumber(plan.amount)} UZS`,
+      callback_data: `walletbuy:premium:${planKey}`,
+    },
+  ]);
+}
+
+function getTopupInlineKeyboard() {
   return [
-    [
-      { text: "⭐ 15", callback_data: "stars:15" },
-      { text: "⭐ 100", callback_data: "stars:100" },
-      { text: "⭐ 150", callback_data: "stars:150" },
-      { text: "⭐ 250", callback_data: "stars:250" },
-      { text: "⭐ 350", callback_data: "stars:350" },
-    ],
-    [
-      { text: "⭐ 500", callback_data: "stars:500" },
-      { text: "⭐ 750", callback_data: "stars:750" },
-      { text: "⭐ 1000", callback_data: "stars:1000" },
-    ],
-    [
-      { text: "⭐ 1500", callback_data: "stars:1500" },
-      { text: "⭐ 2500", callback_data: "stars:2500" },
-    ],
-    [
-      { text: "⭐ 5000", callback_data: "stars:5000" },
-      { text: "⭐ 10000", callback_data: "stars:10000" },
-    ],
-    [
-      { text: "⭐ 50000", callback_data: "stars:50000" },
-      { text: "⭐ 100000", callback_data: "stars:100000" },
-    ],
+    [{ text: "Click", callback_data: "topup:click" }],
+    [{ text: "Payme", callback_data: "topup:payme" }],
+    [{ text: "Telegram Stars", callback_data: "topup:telegram_stars" }],
   ];
 }
 
@@ -170,30 +209,15 @@ async function sendWelcomeAndMenu(bot, msg, lang) {
   const chatId = msg.chat.id;
   const tx = getTexts(lang);
   const stats = readStats();
-
-  const username = msg.from?.username
-    ? `@${msg.from.username}`
-    : msg.from?.first_name || "friend";
-
-  const totalLine = `<b>${formatNumber(stats.botBought)} ${tx.stars}</b>`;
-  const approx = stats.approxUSD ? ` (~${stats.approxUSD}$)` : "";
-
+  const username = msg.from?.username ? `@${msg.from.username}` : msg.from?.first_name || "friend";
   const text =
     `⭐ <b>${tx.welcomeTitle}, ${username}</b>\n\n` +
     `${tx.bought}\n` +
-    `${totalLine}${approx}`;
+    `<b>${formatNumber(stats.botBought)} ${tx.stars}</b>`;
 
   return bot.sendMessage(chatId, text, {
     parse_mode: "HTML",
-    reply_markup: {
-      keyboard: [
-        [tx.buttons.buyStars],
-        [tx.buttons.buyPremium],
-        [tx.buttons.faq, tx.buttons.profile],
-        [tx.buttons.calc, tx.buttons.top],
-      ],
-      resize_keyboard: true,
-    },
+    reply_markup: getMainKeyboard(lang),
   });
 }
 
@@ -203,31 +227,85 @@ async function sendStarsMenu(bot, chatId, lang) {
   return bot.sendMessage(chatId, tx.replies.starsHeader, {
     parse_mode: "HTML",
     reply_markup: {
-      inline_keyboard: getStarsKeyboard(),
+      inline_keyboard: getStarsInlineKeyboard(),
     },
   });
 }
 
 async function sendPremiumMenu(bot, chatId, lang) {
   const tx = getTexts(lang);
-  const premiumButtons = Object.keys(PREMIUM_PLANS).map((key) => [
-    {
-      text: PREMIUM_PLANS[key].title[lang] || PREMIUM_PLANS[key].title.uz,
-      callback_data: `prem:${key}`,
-    },
-  ]);
 
   return bot.sendMessage(chatId, tx.replies.premiumHeader, {
     parse_mode: "HTML",
     reply_markup: {
-      inline_keyboard: premiumButtons,
+      inline_keyboard: getPremiumInlineKeyboard(lang),
     },
   });
 }
 
+async function sendTopupMenu(bot, chatId, lang) {
+  const tx = getTexts(lang);
+
+  return bot.sendMessage(chatId, tx.replies.topupPrompt, {
+    reply_markup: {
+      inline_keyboard: getTopupInlineKeyboard(),
+    },
+  });
+}
+
+function buildProfileText(lang, user, transactions) {
+  const tx = getTexts(lang);
+  const premiumStatusMap = {
+    none: tx.replies.profilePremiumNone,
+    pending: tx.replies.profilePremiumPending,
+    rejected: tx.replies.profilePremiumRejected,
+    active: tx.replies.profilePremiumActive,
+  };
+
+  const premiumStatus = premiumStatusMap[user.premium.status] || tx.replies.profilePremiumNone;
+  const premiumExpires = user.premium.expiresAt ? `\nPremium expires: ${formatDate(user.premium.expiresAt)}` : "";
+
+  return (
+    `<b>${tx.buttons.profile}</b>\n\n` +
+    `ID: <b>${user.telegramId}</b>\n` +
+    `Username: <b>@${user.username || "none"}</b>\n` +
+    `Balance: <b>${formatNumber(user.wallet.balance)} ${user.wallet.currency}</b>\n` +
+    `Premium: <b>${premiumStatus}</b>${premiumExpires}\n` +
+    `Transactions: <b>${transactions}</b>`
+  );
+}
+
+function buildTransactionHistoryText(lang, transactions) {
+  const tx = getTexts(lang);
+  if (!transactions.length) return tx.replies.historyEmpty;
+
+  const lines = transactions.map((item) => {
+    return (
+      `<b>${item.transactionId}</b>\n` +
+      `${formatDate(item.createdAt)} | ${item.paymentMethod} | ${item.amount} ${item.currency}\n` +
+      `${item.type} / ${item.status}`
+    );
+  });
+
+  return `<b>${tx.buttons.transactions}</b>\n\n${lines.join("\n\n")}`;
+}
+
+function buildReferralText(lang, user) {
+  const tx = getTexts(lang);
+  return applyTemplate(tx.replies.referralText, {
+    code: user.referralCode,
+    count: user.referredUsersCount,
+  });
+}
+
 module.exports = {
+  buildProfileText,
+  buildReferralText,
+  buildTransactionHistoryText,
+  getMainKeyboard,
   getTexts,
   sendPremiumMenu,
   sendStarsMenu,
+  sendTopupMenu,
   sendWelcomeAndMenu,
 };
